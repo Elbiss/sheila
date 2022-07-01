@@ -67,5 +67,5 @@ async function setStatus(guild, input) {
   settings.ranking.enabled = status;
   await settings.save();
 
-  return `Yapılandırma kaydedildi! Seviye Sistemi şimdi ${status ? "enabled" : "disabled"}`;
+  return `Yapılandırma kaydedildi! Seviye Sistemi şimdi ${status ? "etkin" : "devre dışı"}`;
 }
