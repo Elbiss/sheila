@@ -7,8 +7,8 @@ const { table } = require("table");
 module.exports = class AutomodConfigCommand extends Command {
   constructor(client) {
     super(client, {
-      name: "automodconfig",
-      description: "various automod configuration",
+      name: "automodayarla",
+      description: "çeşitli automod yapılandırması",
       category: "AUTOMOD",
       userPermissions: ["MANAGE_GUILD"],
       command: {
@@ -16,20 +16,20 @@ module.exports = class AutomodConfigCommand extends Command {
         minArgsCount: 1,
         subcommands: [
           {
-            trigger: "status",
-            description: "check automod configuration for this guild",
+            trigger: "durum",
+            description: "bu sunucu için automod yapılandırmasını kontrol edin",
           },
           {
-            trigger: "strikes <number>",
-            description: "maximum number of strikes a member can receive before taking an action",
+            trigger: "uyarı <sayı>",
+            description: "bir üyenin ceza almadan önce alabileceği maksimum uyarı sayısı",
           },
           {
-            trigger: "action <MUTE|KICK|BAN>",
-            description: "set action to be performed after receiving maximum strikes",
+            trigger: "uygula <SUSTUR|AT|BAN>",
+            description: "maksimum uyarıları aldıktan sonra gerçekleştirilecek eylemi ayarlayın",
           },
           {
             trigger: "debug <ON|OFF>",
-            description: "turns on automod for messages sent by admins and moderators",
+            description: "yöneticiler ve moderatörler tarafından gönderilen iletiler için otomatik mod'u açar",
           },
         ],
       },
@@ -38,40 +38,40 @@ module.exports = class AutomodConfigCommand extends Command {
         ephemeral: true,
         options: [
           {
-            name: "status",
-            description: "Check automod configuration",
+            name: "durum",
+            description: "Automod yapılandırmasını kontrol et",
             type: "SUB_COMMAND",
           },
           {
-            name: "strikes",
-            description: "Set maximum number of strikes before taking an action",
+            name: "uyarılar",
+            description: "Bir eylemde bulunmadan önce maksimum uyarı sayısını ayarlayın",
             type: "SUB_COMMAND",
             options: [
               {
-                name: "amount",
-                description: "number of strikes (default 5)",
+                name: "miktar",
+                description: "uyarı miktarı (varsayılan 5)",
                 required: true,
                 type: "INTEGER",
               },
             ],
           },
           {
-            name: "action",
-            description: "Set action to be performed after receiving maximum strikes",
+            name: "uygula",
+            description: "Maksimum uyarıları aldıktan sonra gerçekleştirilecek eylemi ayarlayın",
             type: "SUB_COMMAND",
             options: [
               {
-                name: "action",
-                description: "action to perform",
+                name: "uygula",
+                description: "gerçekleştirilecek eylem",
                 type: "STRING",
                 required: true,
                 choices: [
                   {
-                    name: "MUTE",
+                    name: "SUSTUR",
                     value: "MUTE",
                   },
                   {
-                    name: "KICK",
+                    name: "AT",
                     value: "KICK",
                   },
                   {
@@ -84,21 +84,21 @@ module.exports = class AutomodConfigCommand extends Command {
           },
           {
             name: "debug",
-            description: "Enable/disable automod for messages sent by admins & moderators",
+            description: "yöneticiler ve moderatörler tarafından gönderilen iletiler için otomatik mod'u aç veya kapat",
             type: "SUB_COMMAND",
             options: [
               {
-                name: "status",
-                description: "configuration status",
+                name: "durum",
+                description: "yapılandırma durumu",
                 required: true,
                 type: "STRING",
                 choices: [
                   {
-                    name: "ON",
+                    name: "AC",
                     value: "ON",
                   },
                   {
-                    name: "OFF",
+                    name: "KAPAT",
                     value: "OFF",
                   },
                 ],
@@ -119,28 +119,28 @@ module.exports = class AutomodConfigCommand extends Command {
     const settings = await getSettings(message.guild);
 
     let response;
-    if (input === "status") {
+    if (input === "durum") {
       response = await getStatus(settings, message.guild);
     }
 
-    if (input === "strikes") {
+    if (input === "uyarılar") {
       const strikes = args[1];
       if (isNaN(strikes) || Number.parseInt(strikes) < 1) {
-        return message.reply("Strikes must be a valid number greater than 0");
+        return message.reply("Grevler 0'dan büyük geçerli bir sayı olmalıdır");
       }
       response = await setStrikes(settings, strikes);
     }
 
-    if (input === "action") {
+    if (input === "uygula") {
       const action = args[1].toUpperCase();
-      if (!action || !["MUTE", "KICK", "BAN"].includes(action))
-        return message.reply("Not a valid action. Action can be `Mute`/`Kick`/`Ban`");
+      if (!action || !["SUSTUR", "AT", "BAN"].includes(action))
+        return message.reply("Geçerli bir eylem yazın: `Sustur`/`At`/`Ban`");
       response = await setAction(settings, message.guild, action);
     }
 
     if (input === "debug") {
       const status = args[1].toLowerCase();
-      if (!["on", "off"].includes(status)) return message.reply("Invalid status. Value must be `on/off`");
+      if (!["ac", "kapat"].includes(status)) return message.reply("Geçersiz durum. Değer yalnızca `ac/kapat` olabilir");
       response = await setDebug(settings, status);
     }
 
@@ -157,11 +157,11 @@ module.exports = class AutomodConfigCommand extends Command {
     let response;
 
     // status
-    if (sub === "status") response = await getStatus(settings, interaction.guild);
-    else if (sub === "strikes") response = await setStrikes(settings, interaction.options.getInteger("amount"));
-    else if (sub === "action")
-      response = await setAction(settings, interaction.guild, interaction.options.getString("action"));
-    else if (sub === "debug") response = await setDebug(settings, interaction.options.getString("status"));
+    if (sub === "durum") response = await getStatus(settings, interaction.guild);
+    else if (sub === "uyarılar") response = await setStrikes(settings, interaction.options.getInteger("miktar"));
+    else if (sub === "uygula")
+      response = await setAction(settings, interaction.guild, interaction.options.getString("yugula"));
+    else if (sub === "debug") response = await setDebug(settings, interaction.options.getString("durum"));
 
     await interaction.followUp(response);
   }
@@ -173,20 +173,20 @@ async function getStatus(settings, guild) {
 
   const logChannel = settings.modlog_channel
     ? guild.channels.cache.get(settings.modlog_channel).toString()
-    : "Not Configured";
+    : "Yapılandırılmadı";
 
-  row.push(["Max Lines", automod.max_lines || "NA"]);
-  row.push(["Max Mentions", automod.max_mentions || "NA"]);
-  row.push(["Max Role Mentions", automod.max_role_mentions || "NA"]);
-  row.push(["Anti-Links", automod.anti_links ? "✓" : "✕"]);
-  row.push(["Anti-Invites", automod.anti_invites ? "✓" : "✕"]);
+  row.push(["Maksimum satırlar", automod.max_lines || "NA"]);
+  row.push(["Maksimum Bahsetmeler", automod.max_mentions || "NA"]);
+  row.push(["Maksimum Rol Bahsetmeleri", automod.max_role_mentions || "NA"]);
+  row.push(["Anti-Link", automod.anti_links ? "✓" : "✕"]);
+  row.push(["Anti-Davet", automod.anti_invites ? "✓" : "✕"]);
   row.push(["Anti-Scam", automod.anti_scam ? "✓" : "✕"]);
   row.push(["Anti-Ghostping", automod.anti_ghostping ? "✓" : "✕"]);
 
   const asciiTable = table(row, {
     singleLine: true,
     header: {
-      content: "Automod Configuration",
+      content: "Automod Yapılandırma",
       alignment: "center",
     },
     columns: [
@@ -200,9 +200,9 @@ async function getStatus(settings, guild) {
   const embed = new MessageEmbed()
     .setColor(EMBED_COLORS.BOT_EMBED)
     .setDescription("```" + asciiTable + "```")
-    .addField("Log Channel", logChannel, true)
-    .addField("Max Strikes", automod.strikes.toString(), true)
-    .addField("Action", automod.action, true);
+    .addField("Log Kanalı", logChannel, true)
+    .addField("Max Uyarılar", automod.strikes.toString(), true)
+    .addField("Uygula", automod.action, true);
 
   return { embeds: [embed] };
 }
@@ -214,32 +214,32 @@ async function setStrikes(settings, strikes) {
 }
 
 async function setAction(settings, guild, action) {
-  if (action === "MUTE") {
+  if (action === "SUSTUR") {
     if (!guild.me.permissions.has("MODERATE_MEMBERS")) {
-      return "I do not permission to timeout members";
+      return "Üyelere zaman aşımı uygulama yetkim yok";
     }
   }
 
-  if (action === "KICK") {
+  if (action === "AT") {
     if (!guild.me.permissions.has("KICK_MEMBERS")) {
-      return "I do not have permission to kick members";
+      return "Üyeleri atma yetkim yok";
     }
   }
 
   if (action === "BAN") {
     if (!guild.me.permissions.has("BAN_MEMBERS")) {
-      return "I do not have permission to ban members";
+      return "Üyeleri banlama yetkim yok";
     }
   }
 
   settings.automod.action = action;
   await settings.save();
-  return `Configuration saved! Automod action is set to ${action}`;
+  return `Yapılandırma kaydedildi! Automod eylemi şu şekilde ayarlandı ${action}`;
 }
 
 async function setDebug(settings, input) {
-  const status = input.toLowerCase() === "on" ? true : false;
+  const status = input.toLowerCase() === "ac" ? true : false;
   settings.automod.debug = status;
   await settings.save();
-  return `Configuration saved! Automod debug is now ${status ? "enabled" : "disabled"}`;
+  return `Yapılandırma kaydedildi! Automod debug şimdi ${status ? "enabled" : "disabled"}`;
 }
