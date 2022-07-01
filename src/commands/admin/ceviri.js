@@ -5,32 +5,32 @@ const { getSettings } = require("@schemas/Guild");
 module.exports = class FlagTranslation extends Command {
   constructor(client) {
     super(client, {
-      name: "flagtranslation",
-      description: "configure flag translation in the server",
+      name: "ceviri",
+      description: "Sunucuda dil çevirisini ayarla",
       category: "ADMIN",
       userPermissions: ["MANAGE_GUILD"],
       command: {
         enabled: true,
-        aliases: ["flagtr"],
+        aliases: ["dilceviri"],
         minArgsCount: 1,
-        usage: "<on|off>",
+        usage: "<ac|kapat>",
       },
       slashCommand: {
         enabled: true,
         ephemeral: true,
         options: [
           {
-            name: "status",
-            description: "enabled or disabled",
+            name: "durum",
+            description: "etkin veya devre dışı",
             required: true,
             type: "STRING",
             choices: [
               {
-                name: "ON",
+                name: "AC",
                 value: "ON",
               },
               {
-                name: "OFF",
+                name: "KAPAT",
                 value: "OFF",
               },
             ],
@@ -46,7 +46,7 @@ module.exports = class FlagTranslation extends Command {
    */
   async messageRun(message, args) {
     const status = args[0].toLowerCase();
-    if (!["on", "off"].includes(status)) return message.reply("Invalid status. Value must be `on/off`");
+    if (!["ac", "kapat"].includes(status)) return message.reply("Geçersiz komut. Değer `ac/kapat` olmalıdır.");
 
     const response = await setFlagTranslation(message.guild, status);
     await message.reply(response);
@@ -56,17 +56,17 @@ module.exports = class FlagTranslation extends Command {
    * @param {CommandInteraction} interaction
    */
   async interactionRun(interaction) {
-    const response = await setFlagTranslation(interaction.guild, interaction.options.getString("status"));
+    const response = await setFlagTranslation(interaction.guild, interaction.options.getString("durum"));
     await interaction.followUp(response);
   }
 };
 
 async function setFlagTranslation(guild, input) {
-  const status = input.toLowerCase() === "on" ? true : false;
+  const status = input.toLowerCase() === "ac" ? true : false;
 
   const settings = await getSettings(guild);
   settings.flag_translation.enabled = status;
   await settings.save();
 
-  return `Configuration saved! Flag translation is now ${status ? "enabled" : "disabled"}`;
+  return `Yapılandırma kaydedildi! Bayrak çevirisi şimdi ${status ? "aktif" : "devre dışı"}`;
 }
