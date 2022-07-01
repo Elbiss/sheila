@@ -15,17 +15,17 @@ client.loadEvents("src/events");
 
 
 // find unhandled promise rejections
-process.on("unhandledRejection", (err) => client.logger.error(`Unhandled exception`, err));
+process.on("unhandledRejection", (err) => client.logger.error(`İşlenmeyen özel durum`, err));
 
 (async () => {
   await startupCheck();
   if (client.config.DASHBOARD.enabled) {
-    client.logger.log("Launching dashboard");
+    client.logger.log("Web paneli başlatılıyor..");
     try {
       const { launch } = require("@root/dashboard/app");
       await launch(client);
     } catch (ex) {
-      client.logger.error("Failed to launch dashboard", ex);
+      client.logger.error("Web paneli başlatılırken hata!", ex);
     }
   }
   await client.initializeMongoose();
