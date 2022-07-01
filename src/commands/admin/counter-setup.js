@@ -27,15 +27,15 @@ module.exports = class CounterSetup extends Command {
             required: true,
             choices: [
               {
-                name: "kullanıcı",
+                name: "KULLANICI",
                 value: "USERS",
               },
               {
-                name: "üye",
+                name: "ÜYE",
                 value: "MEMBERS",
               },
               {
-                name: "bot",
+                name: "BOT",
                 value: "BOTS",
               },
             ],
@@ -57,7 +57,7 @@ module.exports = class CounterSetup extends Command {
    */
   async messageRun(message, args) {
     const type = args[0].toUpperCase();
-    if (!type || !["USERS", "MEMBERS", "BOTS"].includes(type)) {
+    if (!type || !["KULLANICI", "ÜYE", "BOT"].includes(type)) {
       return message.reply("Yanlış argüman kullanıldı! Sayaç kanal türleri: `kullanıcı/üye/bot`");
     }
     if (args.length < 2) return message.reply("Yanlış kullanım! İsim yazmadın");
@@ -84,9 +84,9 @@ async function setupCounter(guild, type, name) {
   let channelName = name;
 
   const stats = await getMemberStats(guild);
-  if (type === "USERS") channelName += ` : ${stats[0]}`;
-  else if (type === "MEMBERS") channelName += ` : ${stats[2]}`;
-  else if (type === "BOTS") channelName += ` : ${stats[1]}`;
+  if (type === "KULLANICI") channelName += ` : ${stats[0]}`;
+  else if (type === "ÜYE") channelName += ` : ${stats[2]}`;
+  else if (type === "BOT") channelName += ` : ${stats[1]}`;
 
   const vc = await guild.channels.create(channelName, {
     type: "GUILD_VOICE",
