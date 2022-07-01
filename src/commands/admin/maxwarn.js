@@ -5,8 +5,8 @@ const { Message, CommandInteraction } = require("discord.js");
 module.exports = class MaxWarn extends Command {
   constructor(client) {
     super(client, {
-      name: "maxwarn",
-      description: "set max warnings configuration",
+      name: "maxuyari",
+      description: "Maksimum uyarı limitini ayarla",
       category: "ADMIN",
       userPermissions: ["MANAGE_GUILD"],
       command: {
@@ -14,12 +14,12 @@ module.exports = class MaxWarn extends Command {
         minArgsCount: 1,
         subcommands: [
           {
-            trigger: "limit <number>",
-            description: "set max warnings a member can receive before taking an action",
+            trigger: "limit <sayı>",
+            description: "Maksimum uyarı limitini ayarlayabilirsiniz",
           },
           {
-            trigger: "action <mute|kick|ban>",
-            description: "set action to performed after receiving maximum warnings",
+            trigger: "uygula <sustur|at|ban>",
+            description: "maksimum uyarıya ulaşınca uygulanacak eylemi ayarlayın",
           },
         ],
       },
@@ -29,34 +29,34 @@ module.exports = class MaxWarn extends Command {
         options: [
           {
             name: "limit",
-            description: "set max warnings a member can receive before taking an action",
+            description: "maksimum uyarı limiti",
             type: "SUB_COMMAND",
             options: [
               {
-                name: "amount",
-                description: "max number of strikes",
+                name: "miktar",
+                description: "max yapılan hata sayısı",
                 type: "INTEGER",
                 required: true,
               },
             ],
           },
           {
-            name: "action",
-            description: "set action to performed after receiving maximum warnings",
+            name: "uygula",
+            description: "maksimum uyarıları aldıktan sonra eylemi gerçekleştir olarak ayarlayın",
             type: "SUB_COMMAND",
             options: [
               {
-                name: "action",
-                description: "action to perform",
+                name: "uygula",
+                description: "gerçekleştirilecek eylem",
                 type: "STRING",
                 required: true,
                 choices: [
                   {
-                    name: "MUTE",
+                    name: "SUSTUR",
                     value: "MUTE",
                   },
                   {
-                    name: "KICK",
+                    name: "AT",
                     value: "KICK",
                   },
                   {
@@ -78,19 +78,19 @@ module.exports = class MaxWarn extends Command {
    */
   async messageRun(message, args) {
     const input = args[0].toLowerCase();
-    if (!["limit", "action"].includes(input)) return message.reply("Invalid command usage");
+    if (!["limit", "uygula"].includes(input)) return message.reply("Yanlış komut kullanımı");
 
     let response;
     if (input === "limit") {
       const max = parseInt(args[1]);
-      if (isNaN(max) || max < 1) return message.reply("Max Warnings must be a valid number greater than 0");
+      if (isNaN(max) || max < 1) return message.reply("Maksimum Uyarılar 0'dan büyük geçerli bir sayı olmalıdır");
       response = await setLimit(message.guild, max);
     }
 
-    if (input === "action") {
+    if (input === "uygula") {
       const action = args[1]?.toUpperCase();
-      if (!action || !["MUTE", "KICK", "BAN"].includes(action))
-        return message.reply("Not a valid action. Action can be `Mute`/`Kick`/`Ban`");
+      if (!action || !["SUSTUR", "AT", "BAN"].includes(action))
+        return message.reply("Geçerli bir eylem değil. Şunlardan biri olabilir `Sustur`/`At`/`Ban`");
       response = await setAction(message.guild, action);
     }
 
@@ -105,11 +105,11 @@ module.exports = class MaxWarn extends Command {
 
     let response;
     if (sub === "limit") {
-      response = await setLimit(interaction.guild, interaction.options.getInteger("amount"));
+      response = await setLimit(interaction.guild, interaction.options.getInteger("miktar"));
     }
 
-    if (sub === "action") {
-      response = await setAction(interaction.guild, interaction.options.getString("action"));
+    if (sub === "uygula") {
+      response = await setAction(interaction.guild, interaction.options.getString("uygula"));
     }
 
     await interaction.followUp(response);
@@ -124,26 +124,26 @@ async function setLimit(guild, limit) {
 }
 
 async function setAction(guild, action) {
-  if (action === "MUTE") {
+  if (action === "SUSTUR") {
     if (!guild.me.permissions.has("MODERATE_MEMBERS")) {
-      return "I do not permission to timeout members";
+      return "Üyelere zaman aşımı uygulama yetkim yok";
     }
   }
 
-  if (action === "KICK") {
+  if (action === "AT") {
     if (!guild.me.permissions.has("KICK_MEMBERS")) {
-      return "I do not have permission to kick members";
+      return "Üyeleri atma yetkim yok";
     }
   }
 
   if (action === "BAN") {
     if (!guild.me.permissions.has("BAN_MEMBERS")) {
-      return "I do not have permission to ban members";
+      return "Üyeleri banlama yetkim yok";
     }
   }
 
   const settings = await getSettings(guild);
   settings.max_warn.action = action;
   await settings.save();
-  return `Configuration saved! Automod action is set to ${action}`;
+  return `Yapılandırma kaydedildi! Automod eylemi şu şekilde ayarlandı ${action}`;
 }
