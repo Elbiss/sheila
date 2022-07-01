@@ -6,13 +6,13 @@ const { findMatchingRoles } = require("@utils/guildUtils");
 module.exports = class AutoRole extends Command {
   constructor(client) {
     super(client, {
-      name: "autorole",
-      description: "setup role to be given when a member joins the server",
+      name: "otorol",
+      description: "Yeni katılan üyelere verilecek rolleri ayarla",
       category: "ADMIN",
       userPermissions: ["MANAGE_GUILD"],
       command: {
         enabled: true,
-        usage: "<role|off>",
+        usage: "<rol|kapat>",
         minArgsCount: 1,
       },
       slashCommand: {
@@ -20,27 +20,27 @@ module.exports = class AutoRole extends Command {
         ephemeral: true,
         options: [
           {
-            name: "add",
-            description: "setup the autorole",
+            name: "ekle",
+            description: "Otomatik rolü ayarla",
             type: "SUB_COMMAND",
             options: [
               {
-                name: "role",
-                description: "the role to be given",
+                name: "rol",
+                description: "verilecek rol",
                 type: "ROLE",
                 required: false,
               },
               {
                 name: "role_id",
-                description: "the role id to be given",
+                description: "verilecek rol id",
                 type: "STRING",
                 required: false,
               },
             ],
           },
           {
-            name: "remove",
-            description: "disable the autorole",
+            name: "kapat",
+            description: "otomatik rolü devre dışı bırak",
             type: "SUB_COMMAND",
           },
         ],
@@ -56,11 +56,11 @@ module.exports = class AutoRole extends Command {
     const input = args.join(" ");
     let response;
 
-    if (input.toLowerCase() === "off") {
+    if (input.toLowerCase() === "kapat") {
       response = await setAutoRole(message, null);
     } else {
       const roles = findMatchingRoles(message.guild, input);
-      if (roles.length === 0) response = "No matching roles found matching your query";
+      if (roles.length === 0) response = "Rol bulunamadı!";
       else response = await setAutoRole(message, roles[0]);
     }
 
@@ -75,14 +75,14 @@ module.exports = class AutoRole extends Command {
     let response;
 
     // add
-    if (sub === "add") {
-      let role = interaction.options.getRole("role");
+    if (sub === "ekle") {
+      let role = interaction.options.getRole("rol");
       if (!role) {
         const role_id = interaction.options.getString("role_id");
-        if (!role_id) return interaction.followUp("Please provide a role or role id");
+        if (!role_id) return interaction.followUp("Lütfen rol veya rol id yazın");
 
         const roles = findMatchingRoles(interaction.guild, role_id);
-        if (roles.length === 0) return interaction.followUp("No matching roles found matching your query");
+        if (roles.length === 0) return interaction.followUp("Rol bulunamadı!");
         role = roles[0];
       }
 
@@ -90,12 +90,12 @@ module.exports = class AutoRole extends Command {
     }
 
     // remove
-    else if (sub === "remove") {
+    else if (sub === "kaldır") {
       response = await setAutoRole(interaction, null);
     }
 
     // default
-    else response = "Invalid subcommand";
+    else response = "Geçersiz alt komut";
 
     await interaction.followUp(response);
   }
@@ -105,9 +105,9 @@ async function setAutoRole({ guild }, role) {
   const settings = await getSettings(guild);
 
   if (role) {
-    if (!guild.me.permissions.has("MANAGE_ROLES")) return "I don't have the `MANAGE_ROLES` permission";
-    if (guild.me.roles.highest.position < role.position) return "I don't have the permissions to assign this role";
-    if (role.managed) return "Oops! This role is managed by an integration";
+    if (!guild.me.permissions.has("MANAGE_ROLES")) return "Rolleri düzenleme yetkim yok";
+    if (guild.me.roles.highest.position < role.position) return "Bu rolü vermek için yetkim yok";
+    if (role.managed) return "Oops! Bu rol bir entegrasyon tarafından yönetiliyor";
   }
 
   if (!role) settings.autorole = null;
