@@ -5,14 +5,14 @@ const { Message, CommandInteraction } = require("discord.js");
 module.exports = class XPSystem extends Command {
   constructor(client) {
     super(client, {
-      name: "xpsystem",
-      description: "enable or disable XP ranking system in the server",
+      name: "seviyesistemi",
+      description: "Sunucuda seviye sistemini etkinleştir veya devre dışı bırak",
       category: "ADMIN",
       userPermissions: ["MANAGE_GUILD"],
       command: {
         enabled: true,
-        aliases: ["xpsystem", "xptracking"],
-        usage: "<on|off>",
+        aliases: ["seviyesistemi", "xpsistemi"],
+        usage: "<aç|kapat>",
         minArgsCount: 1,
       },
       slashCommand: {
@@ -20,8 +20,8 @@ module.exports = class XPSystem extends Command {
         ephemeral: true,
         options: [
           {
-            name: "status",
-            description: "enabled or disabled",
+            name: "durum",
+            description: "etkin veya devre dışı olduğunu sorgula",
             required: true,
             type: "STRING",
             choices: [
@@ -46,7 +46,7 @@ module.exports = class XPSystem extends Command {
    */
   async messageRun(message, args) {
     const input = args[0].toLowerCase();
-    if (!["on", "off"].includes(input)) return message.reply("Invalid status. Value must be `on/off`");
+    if (!["aç", "kapat"].includes(input)) return message.reply("Yanlış değer. Sadece `aç/kapat` yazın.");
     const response = await setStatus(message.guild, input);
     return message.reply(response);
   }
@@ -55,17 +55,17 @@ module.exports = class XPSystem extends Command {
    * @param {CommandInteraction} interaction
    */
   async interactionRun(interaction) {
-    const response = await setStatus(interaction.guild, interaction.options.getString("status"));
+    const response = await setStatus(interaction.guild, interaction.options.getString("durum"));
     await interaction.followUp(response);
   }
 };
 
 async function setStatus(guild, input) {
-  const status = input.toLowerCase() === "on" ? true : false;
+  const status = input.toLowerCase() === "aç" ? true : false;
 
   const settings = await getSettings(guild);
   settings.ranking.enabled = status;
   await settings.save();
 
-  return `Configuration saved! XP System is now ${status ? "enabled" : "disabled"}`;
+  return `Yapılandırma kaydedildi! Seviye Sistemi şimdi ${status ? "enabled" : "disabled"}`;
 }
