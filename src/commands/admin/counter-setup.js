@@ -6,14 +6,14 @@ const { getSettings } = require("@schemas/Guild");
 module.exports = class CounterSetup extends Command {
   constructor(client) {
     super(client, {
-      name: "counter",
-      description: "setup counter channel in the guild",
+      name: "sayac",
+      description: "Sunucuda sayaç kanalı kur",
       category: "ADMIN",
       userPermissions: ["MANAGE_GUILD"],
       botPermissions: ["MANAGE_CHANNELS"],
       command: {
         enabled: true,
-        usage: "<type> <channel-name>",
+        usage: "<tip> <kanal-ismi>",
         minArgsCount: 1,
       },
       slashCommand: {
@@ -21,28 +21,28 @@ module.exports = class CounterSetup extends Command {
         ephemeral: true,
         options: [
           {
-            name: "type",
-            description: "type of counter channel",
+            name: "tür",
+            description: "sayaç kanalının türü",
             type: "STRING",
             required: true,
             choices: [
               {
-                name: "users",
+                name: "kullanıcı",
                 value: "USERS",
               },
               {
-                name: "members",
+                name: "üye",
                 value: "MEMBERS",
               },
               {
-                name: "bots",
+                name: "bot",
                 value: "BOTS",
               },
             ],
           },
           {
-            name: "name",
-            description: "name of the counter channel",
+            name: "isim",
+            description: "sayaç kanalının ismi",
             type: "STRING",
             required: true,
           },
@@ -58,9 +58,9 @@ module.exports = class CounterSetup extends Command {
   async messageRun(message, args) {
     const type = args[0].toUpperCase();
     if (!type || !["USERS", "MEMBERS", "BOTS"].includes(type)) {
-      return message.reply("Incorrect arguments are passed! Counter types: `users/members/bots`");
+      return message.reply("Yanlış argüman kullanıldı! Sayaç kanal türleri: `kullanıcı/üye/bot`");
     }
-    if (args.length < 2) return message.reply("Incorrect Usage! You did not provide name");
+    if (args.length < 2) return message.reply("Yanlış kullanım! İsim yazmadın");
     args.shift();
     let channelName = args.join(" ");
 
@@ -72,8 +72,8 @@ module.exports = class CounterSetup extends Command {
    * @param {CommandInteraction} interaction
    */
   async interactionRun(interaction) {
-    const type = interaction.options.getString("type");
-    const name = interaction.options.getString("name");
+    const type = interaction.options.getString("tür");
+    const name = interaction.options.getString("isim");
 
     const response = await setupCounter(interaction.guild, type.toUpperCase(), name);
     return interaction.followUp(response);
@@ -119,5 +119,5 @@ async function setupCounter(guild, type, name) {
   settings.data.bots = stats[1];
   await settings.save();
 
-  return "Configuration saved! Counter channel created";
+  return "Yapılandırma kaydedildi! Sayaç kanalı oluşturuldu";
 }
