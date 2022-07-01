@@ -1,12 +1,12 @@
 module.exports = {
-  OWNER_IDS: [], // Bot owner ID's
+  OWNER_IDS: ["501913187575136266"], // Bot owner ID's
   PREFIX: "!", // Default prefix for the bot
-  SUPPORT_SERVER: "", // Your bot support server
+  SUPPORT_SERVER: "https://discord.gg/wKTY2rmcbJ", // Your bot support server
   PRESENCE: {
     ENABLED: true, // Whether or not the bot should update its status
     STATUS: "online", // The bot's status [online, idle, dnd, invisible]
     TYPE: "WATCHING", // Status type for the bot [PLAYING | LISTENING | WATCHING | COMPETING]
-    MESSAGE: "{members} members in {servers} servers", // Your bot status message
+    MESSAGE: "{members} kullanıcı ve {servers} sunucuda online!", // Your bot status message
   },
   DASHBOARD: {
     enabled: false, // enable or disable dashboard
@@ -15,14 +15,14 @@ module.exports = {
     port: "8080", // port to run the bot on
   },
   INTERACTIONS: {
-    SLASH: false, // Should the interactions be enabled
-    CONTEXT: false, // Should contexts be enabled
-    GLOBAL: false, // Should the interactions be registered globally
-    TEST_GUILD_ID: "xxxxxxxxxx", // Guild ID where the interactions should be registered. [** Test you commands here first **]
+    SLASH: true, // Should the interactions be enabled
+    CONTEXT: true, // Should contexts be enabled
+    GLOBAL: true, // Should the interactions be registered globally
+    TEST_GUILD_ID: "885909434281361418", // Guild ID where the interactions should be registered. [** Test you commands here first **]
   },
   XP_SYSTEM: {
     COOLDOWN: 5, // Cooldown in seconds between messages
-    DEFAULT_LVL_UP_MSG: "{m}, You just advanced to **Level {l}**",
+    DEFAULT_LVL_UP_MSG: "{m}, Tebrikler, seviye atladın! **Seviye {l}**",
   },
   MISCELLANEOUS: {
     DAILY_COINS: 100, // coins to be received by daily command
