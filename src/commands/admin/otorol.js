@@ -114,5 +114,5 @@ async function setAutoRole({ guild }, role) {
   else settings.autorole = role.id;
 
   await settings.save();
-  return `Configuration saved! Autorole is ${!role ? "disabled" : "setup"}`;
+  return `Yapılandırma kaydedildi! Otorol ${!role ? "devre dışı" : "aktif"}`;
 }
